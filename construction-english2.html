@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>建筑工地英语学习软件</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 0;
+            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-nav {
+            background-color: #2f4154;
+            padding: 12px 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            flex-shrink: 0;
+        }
+
+        .category-btn {
+            display: inline-block;
+            background-color: #405870;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            margin: 0 4px 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+
+        .category-btn.active {
+            background-color: #009688;
+        }
+
+        .category-btn:hover {
+            background-color: #009688;
+        }
+
+        .word-card {
+            padding: 20px 15px;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .word-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2f4154;
+            margin-bottom: 15px;
+            word-break: break-all;
+        }
+
+        .word-phonetic {
+            color: #888;
+            font-style: italic;
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+
+        .word-chinese {
+            font-size: 26px;
+            color: #009688;
+            margin-bottom: 30px;
+            word-break: break-all;
+        }
+
+        /* 新增：语音设置面板样式 */
+        .voice-settings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin: 0 15px 15px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .setting-item {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 14px;
+            color: #2f4154;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .voice-select, .speed-range {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: white;
+        }
+
+        .speed-range {
+            -webkit-appearance: none;
+            height: 6px;
+            background: #e0e0e0;
+            outline: none;
+        }
+
+        .speed-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #009688;
+            cursor: pointer;
+        }
+
+        .speed-value {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 15px 20px;
+            flex-shrink: 0;
+        }
+
+        .func-btn {
+            background-color: #009688;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            flex: 1;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .func-btn:hover {
+            background-color: #00796b;
+            transform: translateY(-2px);
+        }
+
+        .func-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .page-btn-group {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px 15px;
+            flex-shrink: 0;
+        }
+
+        .page-btn {
+            background-color: #2f4154;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 17px;
+            touch-action: manipulation;
+        }
+
+        .page-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 12px;
+            color: #888;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 480px) {
+            .word-title {
+                font-size: 28px;
+            }
+            .word-chinese {
+                font-size: 24px;
+            }
+            .func-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+                flex-direction: column;
+                gap: 5px;
+            }
+            .category-btn {
+                padding: 8px 14px;
+                font-size: 14px;
+            }
+            .page-btn {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            .voice-settings {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .setting-item {
+                min-width: 100%;
+            }
+        }
+
+        /* 隐藏滚动条 */
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        /* 提示框样式 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            z-index: 9999;
+            display: none;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 分类导航 -->
+        <div class="category-nav">
+            <button class="category-btn active" data-category="all">全部</button>
+            <button class="category-btn" data-category="personnel">人员/职位</button>
+            <button class="category-btn" data-category="material">建筑材料</button>
+            <button class="category-btn" data-category="machine">施工机械/工具</button>
+            <button class="category-btn" data-category="construction">施工动作/工序</button>
+            <button class="category-btn" data-category="safety">安全/现场管理</button>
+            <button class="category-btn" data-category="structure">建筑结构</button>
+            <button class="category-btn" data-category="management">施工管理</button>
+        </div>
+
+        <!-- 单词卡片 -->
+        <div class="word-card">
+            <div class="word-title" id="wordEnglish">Construction worker</div>
+            <div class="word-phonetic" id="wordPhonetic">/kənˈstrʌkʃn ˈwɜːkə(r)/</div>
+            <div class="word-chinese" id="wordChinese">建筑工人</div>
+        </div>
+
+        <!-- 新增：语音设置面板 -->
+        <div class="voice-settings">
+            <div class="setting-item">
+                <label class="setting-label">选择发音人</label>
+                <select class="voice-select" id="voiceSelect">
+                    <option value="male">男声 (默认)</option>
+                    <option value="female">女声 (默认)</option>
+                </select>
+            </div>
+            <div class="setting-item">
+                <label class="setting-label">语速调节</label>
+                <input type="range" class="speed-range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.9">
+                <div class="speed-value" id="speedValue">当前语速：0.9x</div>
+            </div>
+        </div>
+
+        <!-- 功能按钮 -->
+        <div class="btn-group">
+            <button class="func-btn" id="playBtn">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                播放发音
+            </button>
+            <button class="func-btn" id="flipBtn">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15 21h2v-2h-2v2zm4-12h2V7h-2v2zM3 5v14c0 1.1.9 2 2 2h4v-2H5V5h4V3H5c-1.1 0-2 .9-2 2zm16-2v2h2c0-1.1-.9-2-2-2zm-8 20h2V1h-2v22zm8-6h2v-2h-2v2zM15 5h2V3h-2v2zm4 8h2v-2h-2v2zm0 8c1.1 0 2-.9 2-2h-2v2z"/>
+                </svg>
+                切换显示
+            </button>
+        </div>
+
+        <!-- 翻页按钮 -->
+        <div class="page-btn-group">
+            <button class="page-btn" id="prevBtn" disabled>上一个</button>
+            <button class="page-btn" id="nextBtn">下一个</button>
+        </div>
+
+        <!-- 底部 -->
+        <div class="footer">
+            建筑工地英语学习软件 | 共<span id="totalCount">0</span>个单词
+        </div>
+    </div>
+
+    <!-- 提示框 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 单词数据库（保持不变）
+        const wordDatabase = {
+            personnel: [
+                { english: "Construction worker", chinese: "建筑工人", phonetic: "/kənˈstrʌkʃn ˈwɜːkə(r)/" },
+                { english: "Foreman", chinese: "工长/领班", phonetic: "/ˈfɔːmən/" },
+                { english: "Site manager", chinese: "工地经理", phonetic: "/saɪt ˈmænɪdʒə(r)/" },
+                { english: "Project engineer", chinese: "项目工程师", phonetic: "/ˈprɒdʒekt ˌendʒɪˈnɪə(r)/" },
+                { english: "Civil engineer", chinese: "土木工程师", phonetic: "/ˈsɪvl ˌendʒɪˈnɪə(r)/" },
+                { english: "Structural engineer", chinese: "结构工程师", phonetic: "/ˈstrʌktʃərəl ˌendʒɪˈnɪə(r)/" },
+                { english: "Supervisor", chinese: "监理/管理员", phonetic: "/ˈsuːpəvaɪzə(r)/" },
+                { english: "Safety officer", chinese: "安全员", phonetic: "/ˈseɪfti ˈɒfɪsə(r)/" },
+                { english: "Electrician", chinese: "电工", phonetic: "/ɪˌlekˈtrɪʃn/" },
+                { english: "Plumber", chinese: "水暖工/管工", phonetic: "/ˈplʌmə(r)/" },
+                { english: "Carpenter", chinese: "木工", phonetic: "/ˈkɑːpəntə(r)/" },
+                { english: "Mason", chinese: "瓦工/泥瓦匠", phonetic: "/ˈmeɪsn/" },
+                { english: "Welder", chinese: "焊工", phonetic: "/ˈweldə(r)/" },
+                { english: "Painter", chinese: "油漆工", phonetic: "/ˈpeɪntə(r)/" },
+                { english: "Laborer", chinese: "杂工", phonetic: "/ˈleɪbərə(r)/" },
+                { english: "Surveyor", chinese: "测量员", phonetic: "/səˈveɪə(r)/" },
+                { english: "Architect", chinese: "建筑师", phonetic: "/ˈɑːkɪtekt/" },
+                { english: "Contractor", chinese: "承包商", phonetic: "/kənˈtræktə(r)/" },
+                { english: "Subcontractor", chinese: "分包商", phonetic: "/ˌsʌbkənˈtræktə(r)/" }
+            ],
+            material: [
+                { english: "Concrete", chinese: "混凝土", phonetic: "/ˈkɒŋkriːt/" },
+                { english: "Cement", chinese: "水泥", phonetic: "/sɪˈment/" },
+                { english: "Sand", chinese: "沙子", phonetic: "/sænd/" },
+                { english: "Gravel", chinese: "碎石/砾石", phonetic: "/ˈɡrævl/" },
+                { english: "Stone", chinese: "石子/石材", phonetic: "/stəʊn/" },
+                { english: "Steel", chinese: "钢材/钢筋", phonetic: "/stiːl/" },
+                { english: "Rebar (reinforcing bar)", chinese: "钢筋", phonetic: "/ˈriːbɑː(r)/" },
+                { english: "Steel beam", chinese: "钢梁", phonetic: "/stiːl biːm/" },
+                { english: "Steel column", chinese: "钢柱", phonetic: "/stiːl ˈkɒləm/" },
+                { english: "Brick", chinese: "砖", phonetic: "/brɪk/" },
+                { english: "Tile", chinese: "瓷砖/瓦", phonetic: "/taɪl/" },
+                { english: "Timber/wood", chinese: "木材", phonetic: "/ˈtɪmbə(r)/ /wʊd/" },
+                { english: "Plywood", chinese: "胶合板", phonetic: "/ˈplaɪwʊd/" },
+                { english: "Glass", chinese: "玻璃", phonetic: "/ɡlɑːs/" },
+                { english: "Paint", chinese: "涂料/油漆", phonetic: "/peɪnt/" },
+                { english: "Mortar", chinese: "砂浆", phonetic: "/ˈmɔːtə(r)/" },
+                { english: "Asphalt", chinese: "沥青", phonetic: "/ˈæsfælt/" },
+                { english: "Waterproof membrane", chinese: "防水卷材", phonetic: "/ˈwɔːtəpruːf ˈmembreɪn/" },
+                { english: "Insulation material", chinese: "保温材料", phonetic: "/ˌɪnsjuˈleɪʃn məˈtɪəriəl/" },
+                { english: "PVC pipe", chinese: "PVC管", phonetic: "/ˌpiː viː ˈsiː paɪp/" },
+                { english: "Copper pipe", chinese: "铜管", phonetic: "/ˈkɒpə(r) paɪp/" },
+                { english: "Wire/cable", chinese: "电线/电缆", phonetic: "/ˈwaɪə(r) /ˈkeɪbl/" },
+                { english: "Nails/screws", chinese: "钉子/螺丝", phonetic: "/neɪlz /skruːz/" },
+                { english: "Adhesive", chinese: "粘合剂/胶水", phonetic: "/ədˈhiːsɪv/" }
+            ],
+            machine: [
+                { english: "Crane", chinese: "起重机/塔吊", phonetic: "/kreɪn/" },
+                { english: "Tower crane", chinese: "塔式起重机（塔吊）", phonetic: "/ˈtaʊə(r) kreɪn/" },
+                { english: "Mobile crane", chinese: "汽车吊", phonetic: "/ˈməʊbaɪl kreɪn/" },
+                { english: "Excavator", chinese: "挖掘机", phonetic: "/ˈekskəveɪtə(r)/" },
+                { english: "Loader", chinese: "装载机", phonetic: "/ˈləʊdə(r)/" },
+                { english: "Bulldozer", chinese: "推土机", phonetic: "/ˈbʊldəʊzə(r)/" },
+                { english: "Roller", chinese: "压路机", phonetic: "/ˈrəʊlə(r)/" },
+                { english: "Concrete mixer", chinese: "混凝土搅拌机", phonetic: "/ˈkɒŋkriːt ˈmɪksə(r)/" },
+                { english: "Concrete pump", chinese: "混凝土泵车", phonetic: "/ˈkɒŋkriːt pʌmp/" },
+                { english: "Forklift", chinese: "叉车", phonetic: "/ˈfɔːklɪft/" },
+                { english: "Welding machine", chinese: "电焊机", phonetic: "/ˈweldɪŋ məˈʃiːn/" },
+                { english: "Drill (electric drill)", chinese: "电钻", phonetic: "/drɪl /ɪˈlektrɪk drɪl/" },
+                { english: "Hammer", chinese: "锤子", phonetic: "/ˈhæmə(r)/" },
+                { english: "Saw", chinese: "锯子", phonetic: "/sɔː/" },
+                { english: "Level", chinese: "水平仪", phonetic: "/ˈlevl/" },
+                { english: "Tape measure", chinese: "卷尺", phonetic: "/teɪp ˈmeʒə(r)/" },
+                { english: "Shovel", chinese: "铁锹", phonetic: "/ˈʃʌvl/" },
+                { english: "Wheelbarrow", chinese: "手推车", phonetic: "/ˈwiːlbærəʊ/" },
+                { english: "Ladder", chinese: "梯子", phonetic: "/ˈlædə(r)/" },
+                { english: "Scaffolding", chinese: "脚手架", phonetic: "/ˈskæfəldɪŋ/" }
+            ],
+            construction: [
+                { english: "Construct/Build", chinese: "建造/施工", phonetic: "/kənˈstrʌkt /bɪld/" },
+                { english: "Install", chinese: "安装", phonetic: "/ɪnˈstɔːl/" },
+                { english: "Demolish", chinese: "拆除", phonetic: "/dɪˈmɒlɪʃ/" },
+                { english: "Excavate", chinese: "开挖/挖掘", phonetic: "/ˈekskəveɪt/" },
+                { english: "Pour concrete", chinese: "浇筑混凝土", phonetic: "/pɔː(r) ˈkɒŋkriːt/" },
+                { english: "Cast", chinese: "浇筑/浇筑成型", phonetic: "/kɑːst/" },
+                { english: "Reinforce", chinese: "加固/配筋", phonetic: "/ˌriːɪnˈfɔːs/" },
+                { english: "Bind rebar", chinese: "绑扎钢筋", phonetic: "/baɪnd ˈriːbɑː(r)/" },
+                { english: "Formwork", chinese: "支模板（名词）", phonetic: "/ˈfɔːmwɜːk/" },
+                { english: "Erect scaffolding", chinese: "搭设脚手架", phonetic: "/ɪˈrekt ˈskæfəldɪŋ/" },
+                { english: "Backfill", chinese: "回填", phonetic: "/ˈbækfɪl/" },
+                { english: "Compact", chinese: "压实/夯实", phonetic: "/kəmˈpækt/" },
+                { english: "Level", chinese: "找平/抄平", phonetic: "/ˈlevl/" },
+                { english: "Measure", chinese: "测量", phonetic: "/ˈmeʒə(r)/" },
+                { english: "Cut", chinese: "切割", phonetic: "/kʌt/" },
+                { english: "Weld", chinese: "焊接", phonetic: "/weld/" },
+                { english: "Paint", chinese: "涂刷/喷漆", phonetic: "/peɪnt/" },
+                { english: "Lay bricks", chinese: "砌砖", phonetic: "/leɪ brɪks/" },
+                { english: "Tile laying", chinese: "贴瓷砖", phonetic: "/taɪl ˈleɪɪŋ/" },
+                { english: "Waterproofing", chinese: "做防水", phonetic: "/ˈwɔːtəpruːfɪŋ/" },
+                { english: "Test", chinese: "检测/试验", phonetic: "/test/" },
+                { english: "Inspect", chinese: "检查/验收", phonetic: "/ɪnˈspekt/" }
+            ],
+            safety: [
+                { english: "Safety", chinese: "安全", phonetic: "/ˈseɪfti/" },
+                { english: "Safety helmet", chinese: "安全帽", phonetic: "/ˈseɪfti ˈhelmɪt/" },
+                { english: "Reflective vest", chinese: "反光背心", phonetic: "/rɪˈflektɪv vest/" },
+                { english: "Safety shoes", chinese: "安全鞋", phonetic: "/ˈseɪfti ʃuːz/" },
+                { english: "Gloves", chinese: "手套", phonetic: "/ɡlʌvz/" },
+                { english: "Goggles", chinese: "护目镜", phonetic: "/ˈɡɒɡlz/" },
+                { english: "Mask", chinese: "口罩", phonetic: "/mɑːsk/" },
+                { english: "Warning sign", chinese: "警示标识", phonetic: "/ˈwɔːnɪŋ saɪn/" },
+                { english: "Danger", chinese: "危险", phonetic: "/ˈdeɪndʒə(r)/" },
+                { english: "Caution", chinese: "小心/注意", phonetic: "/ˈkɔːʃn/" },
+                { english: "No entry", chinese: "禁止入内", phonetic: "/nəʊ ˈentri/" },
+                { english: "Hard hat area", chinese: "必须戴安全帽区域", phonetic: "/hɑːd hæt ˈeəriə/" },
+                { english: "First aid kit", chinese: "急救箱", phonetic: "/fɜːst eɪd kɪt/" },
+                { english: "Fire extinguisher", chinese: "灭火器", phonetic: "/ˈfaɪə(r) ɪkˈstɪŋɡwɪʃə(r)/" },
+                { english: "Emergency exit", chinese: "紧急出口", phonetic: "/iˈmɜːdʒənsi ˈeksɪt/" },
+                { english: "Construction site", chinese: "施工现场", phonetic: "/kənˈstrʌkʃn saɪt/" },
+                { english: "Site rules", chinese: "工地规则", phonetic: "/saɪt ruːlz/" },
+                { english: "Accident", chinese: "事故", phonetic: "/ˈæksɪdənt/" },
+                { english: "Injury", chinese: "受伤", phonetic: "/ˈɪndʒəri/" },
+                { english: "Fall protection", chinese: "防坠落措施", phonetic: "/fɔːl prəˈtekʃn/" },
+                { english: "PPE (Personal Protective Equipment)", chinese: "个人防护装备", phonetic: "/ˌpiː piː ˈiː/" }
+            ],
+            structure: [
+                { english: "Building", chinese: "建筑物", phonetic: "/ˈbɪldɪŋ/" },
+                { english: "Structure", chinese: "结构", phonetic: "/ˈstrʌktʃə(r)/" },
+                { english: "Foundation", chinese: "基础", phonetic: "/faʊnˈdeɪʃn/" },
+                { english: "Footing", chinese: "基础垫层/桩基", phonetic: "/ˈfʊtɪŋ/" },
+                { english: "Column", chinese: "柱子", phonetic: "/ˈkɒləm/" },
+                { english: "Beam", chinese: "梁", phonetic: "/biːm/" },
+                { english: "Slab", chinese: "楼板/平板", phonetic: "/slæb/" },
+                { english: "Wall", chinese: "墙体", phonetic: "/wɔːl/" },
+                { english: "Floor", chinese: "楼层/地面", phonetic: "/flɔː(r)/" },
+                { english: "Roof", chinese: "屋顶", phonetic: "/ruːf/" },
+                { english: "Ceiling", chinese: "天花板", phonetic: "/ˈsiːlɪŋ/" },
+                { english: "Door/Window", chinese: "门/窗", phonetic: "/dɔː(r) /ˈwɪndəʊ/" },
+                { english: "Staircase", chinese: "楼梯", phonetic: "/ˈsteəkeɪs/" },
+                { english: "Elevator/Lift", chinese: "电梯", phonetic: "/ˈelɪveɪtə(r) /lɪft/" },
+                { english: "Basement", chinese: "地下室", phonetic: "/ˈbeɪsmənt/" },
+                { english: "Garage", chinese: "车库", phonetic: "/ˈɡærɑːʒ/" },
+                { english: "Facade", chinese: "外立面", phonetic: "/fəˈsɑːd/" },
+                { english: "Drainage", chinese: "排水系统", phonetic: "/ˈdreɪnɪdʒ/" },
+                { english: "Ventilation", chinese: "通风系统", phonetic: "/ˌventɪˈleɪʃn/" }
+            ],
+            management: [
+                { english: "Construction plan", chinese: "施工方案", phonetic: "/kənˈstrʌkʃn plæn/" },
+                { english: "Schedule", chinese: "施工进度/工期", phonetic: "/ˈʃedjuːl/" },
+                { english: "Deadline", chinese: "截止日期", phonetic: "/ˈdedlaɪn/" },
+                { english: "Budget", chinese: "预算", phonetic: "/ˈbʌdʒɪt/" },
+                { english: "Quality control", chinese: "质量控制", phonetic: "/ˈkwɒləti kənˈtrəʊl/" },
+                { english: "Progress", chinese: "进度", phonetic: "/ˈprəʊɡres/" },
+                { english: "Delay", chinese: "延期", phonetic: "/dɪˈleɪ/" },
+                { english: "Defect", chinese: "缺陷/瑕疵", phonetic: "/dɪˈfekt/" },
+                { english: "Inspection", chinese: "检查/验收", phonetic: "/ɪnˈspekʃn/" },
+                { english: "Approval", chinese: "审批/批准", phonetic: "/əˈpruːvl/" },
+                { english: "Document", chinese: "资料/文件", phonetic: "/ˈdɒkjumənt/" },
+                { english: "Daily report", chinese: "施工日报", phonetic: "/ˈdeɪli rɪˈpɔːt/" },
+                { english: "Meeting", chinese: "会议", phonetic: "/ˈmiːtɪŋ/" },
+                { english: "Communication", chinese: "沟通", phonetic: "/kəˌmjuːnɪˈkeɪʃn/" }
+            ]
+        };
+
+        // 全局状态管理（新增语音相关配置）
+        let state = {
+            currentCategory: "all",
+            filteredWords: [],
+            currentIndex: 0,
+            showEnglish: true,
+            audioActivated: true,
+            speechSynthesis: null,
+            voices: [], // 存储可用语音列表
+            selectedVoiceType: "male", // 默认男声
+            speechRate: 0.9 // 默认语速
+        };
+
+        // 提示框工具函数
+        function showToast(message, duration = 2000) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.style.display = "block";
+            toast.style.opacity = "1";
+            
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => {
+                    toast.style.display = "none";
+                }, 300);
+            }, duration);
+        }
+
+        // 获取可用语音列表（适配不同系统）
+        function getAvailableVoices() {
+            if (!window.speechSynthesis) return [];
+            
+            let voices = window.speechSynthesis.getVoices();
+            // 过滤出英文语音
+            voices = voices.filter(voice => voice.lang.includes('en'));
+            
+            // 按性别分类语音
+            const voiceMap = {
+                male: voices.find(v => v.name.includes('Male') || v.name.includes('US Male') || v.name.includes('English (US)')) || voices[0],
+                female: voices.find(v => v.name.includes('Female') || v.name.includes('US Female') || v.name.includes('Samantha')) || voices[0]
+            };
+            
+            return voiceMap;
+        }
+
+        // 初始化语音合成（优化多系统兼容性）
+        function initSpeechSynthesis() {
+            // 处理不同浏览器的语音加载时机
+            function loadVoices() {
+                state.voices = getAvailableVoices();
+                // 如果没有找到对应语音，降级使用默认
+                if (!state.voices[state.selectedVoiceType]) {
+                    state.selectedVoiceType = Object.keys(state.voices)[0] || "male";
+                }
+            }
+
+            // 初始化TTS
+            if (window.speechSynthesis) {
+                state.speechSynthesis = window.speechSynthesis;
+                
+                // 监听语音加载事件（解决Chrome/Edge延迟问题）
+                window.speechSynthesis.onvoiceschanged = loadVoices;
+                
+                // 立即加载一次（解决iOS/Safari兼容）
+                setTimeout(loadVoices, 100);
+                
+                // 预激活音频（解决移动端首次点击无声音问题）
+                document.addEventListener('click', function initAudio() {
+                    if (state.audioActivated) {
+                        const testUtterance = new SpeechSynthesisUtterance(' ');
+                        state.speechSynthesis.speak(testUtterance);
+                        state.speechSynthesis.cancel();
+                        state.audioActivated = false;
+                        document.removeEventListener('click', initAudio);
+                    }
+                }, { once: true });
+                
+            } else {
+                showToast("当前浏览器不支持语音合成，建议使用Chrome/Edge/系统自带浏览器");
+            }
+        }
+
+        // 播放单词发音（支持语速和男女声切换）
+        function playPronunciation() {
+            if (!state.speechSynthesis) {
+                showToast("语音合成功能不可用");
+                return;
+            }
+
+            // 停止当前正在播放的语音
+            state.speechSynthesis.cancel();
+
+            const currentWord = state.filteredWords[state.currentIndex];
+            const utterance = new SpeechSynthesisUtterance(currentWord.english);
+            
+            // 设置语音参数
+            utterance.lang = 'en-US';
+            utterance.rate = state.speechRate; // 使用当前设置的语速
+            utterance.pitch = state.selectedVoiceType === "female" ? 1.1 : 0.9; // 女声调高一点
+            utterance.volume = 1;
+
+            // 设置选择的语音（适配不同系统）
+            const voiceToUse = state.voices[state.selectedVoiceType];
+            if (voiceToUse) {
+                utterance.voice = voiceToUse;
+            }
+
+            // 播放语音（添加错误处理）
+            try {
+                state.speechSynthesis.speak(utterance);
+            } catch (e) {
+                showToast("发音播放失败，正在使用备用方案");
+                // 备用方案：直接使用默认语音
+                const fallbackUtterance = new SpeechSynthesisUtterance(currentWord.english);
+                fallbackUtterance.lang = 'en-US';
+                fallbackUtterance.rate = state.speechRate;
+                state.speechSynthesis.speak(fallbackUtterance);
+            }
+        }
+
+        // 过滤单词列表
+        function filterWords(category) {
+            if (category === "all") {
+                state.filteredWords = [];
+                for (const key in wordDatabase) {
+                    state.filteredWords = state.filteredWords.concat(wordDatabase[key]);
+                }
+            } else {
+                state.filteredWords = [...wordDatabase[category]];
+            }
+            state.currentIndex = 0;
+            updateWordDisplay();
+            updatePageButtons();
+            document.getElementById("totalCount").textContent = state.filteredWords.length;
+        }
+
+        // 更新单词显示
+        function updateWordDisplay() {
+            if (state.filteredWords.length === 0) return;
+            
+            const currentWord = state.filteredWords[state.currentIndex];
+            const wordEnglishEl = document.getElementById("wordEnglish");
+            const wordPhoneticEl = document.getElementById("wordPhonetic");
+            const wordChineseEl = document.getElementById("wordChinese");
+
+            if (state.showEnglish) {
+                wordEnglishEl.textContent = currentWord.english;
+                wordPhoneticEl.textContent = currentWord.phonetic;
+                wordChineseEl.textContent = currentWord.chinese;
+            } else {
+                wordEnglishEl.textContent = currentWord.chinese;
+                wordPhoneticEl.textContent = "";
+                wordChineseEl.textContent = currentWord.english;
+            }
+        }
+
+        // 更新翻页按钮状态
+        function updatePageButtons() {
+            document.getElementById("prevBtn").disabled = state.currentIndex === 0;
+            document.getElementById("nextBtn").disabled = state.currentIndex === state.filteredWords.length - 1;
+        }
+
+        // 切换显示模式（英文/中文）
+        function toggleDisplay() {
+            state.showEnglish = !state.showEnglish;
+            updateWordDisplay();
+            showToast(state.showEnglish ? "显示英文" : "显示中文");
+        }
+
+        // 上一个单词
+        function prevWord() {
+            if (state.currentIndex > 0) {
+                state.currentIndex--;
+                updateWordDisplay();
+                updatePageButtons();
+            }
+        }
+
+        // 下一个单词
+        function nextWord() {
+            if (state.currentIndex < state.filteredWords.length - 1) {
+                state.currentIndex++;
+                updateWordDisplay();
+                updatePageButtons();
+            }
+        }
+
+        // 切换分类
+        function changeCategory(category) {
+            state.currentCategory = category;
+            document.querySelectorAll(".category-btn").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.category === category);
+            });
+            filterWords(category);
+        }
+
+        // 初始化页面
+        function initPage() {
+            // 初始化语音合成
+            initSpeechSynthesis();
+            
+            // 初始化单词列表
+            filterWords("all");
+            
+            // 绑定播放按钮事件
+            document.getElementById("playBtn").addEventListener("click", playPronunciation);
+            
+            // 绑定切换显示按钮事件
+            document.getElementById("flipBtn").addEventListener("click", toggleDisplay);
+            
+            // 绑定翻页按钮事件
+            document.getElementById("prevBtn").addEventListener("click", prevWord);
+            document.getElementById("nextBtn").addEventListener("click", nextWord);
+            
+            // 绑定分类按钮事件
+            document.querySelectorAll(".category-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    changeCategory(btn.dataset.category);
+                });
+            });
+
+            // 绑定语音类型选择事件
+            const voiceSelect = document.getElementById("voiceSelect");
+            voiceSelect.addEventListener("change", function() {
+                state.selectedVoiceType = this.value;
+                showToast(`已切换为${this.value === 'male' ? '男声' : '女声'}`);
+            });
+
+            // 绑定语速调节事件
+            const speedRange = document.getElementById("speedRange");
+            const speedValue = document.getElementById("speedValue");
+            
+            speedRange.addEventListener("input", function() {
+                state.speechRate = parseFloat(this.value);
+                speedValue.textContent = `当前语速：${state.speechRate}x`;
+            });
+
+            // 初始化语速显示
+            speedValue.textContent = `当前语速：${state.speechRate}x`;
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener("DOMContentLoaded", initPage);
+        
+        // 解决iOS页面隐藏时停止语音的问题
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && state.speechSynthesis) {
+                state.speechSynthesis.cancel();
+            }
+        });
+    </script>
+</body>
+</html>
